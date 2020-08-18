@@ -98,7 +98,7 @@ def login():
 
     if form.validate_on_submit():
         user = User.authenticate(form.username.data,
-                                 form.password.data)
+        form.password.data)
 
         if user:
             do_login(user)
@@ -130,6 +130,10 @@ def list_users():
     Can take a 'q' param in querystring to search by that username.
     """
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     search = request.args.get('q')
 
     if not search:
@@ -143,6 +147,10 @@ def list_users():
 @app.route('/users/<int:user_id>')
 def users_show(user_id):
     """Show user profile."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     user = User.query.get_or_404(user_id)
     # snagging messages in order from the database;
@@ -317,6 +325,10 @@ def messages_add():
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     msg = Message.query.get_or_404(message_id)
     return render_template('messages/show.html', message=msg)
